@@ -2,60 +2,56 @@ $(function()
 {
   var selectedStartDate,
       selectedDate,
-      nextDateOfSelectedDate,
       dayInSelectedStartDate ;
 
-  $('#start-datetimepicker').dateRangePicker(
-  {
-  	separator : ' to ',
-    time: {
-		    enabled: true
-	  },
-    singleMonth: true,
-    singleDate:true,
-    startDate: false,
-	  endDate: false,
-    format: 'DD.MM.YYYY HH:mm',
-    autoClose: false,
-    tableId:'start-date-table',
-  	// getValue: function()
-  	// {
-  	// 	if ($('#start-date-range').val() && $('#end-date-range').val() )
-  	// 		return $('#start-date-range').val() + ' to ' + $('#end-date-range').val();
-  	// 	else
-  	// 		return '';
-  	// },
-  	setValue: function(s,s1,s2)
-  	{
-  		$('#start-date-range').val(s1);
-  		//$('#end-date-range').val(s2);
-  	}
-  }).bind('datepicker-first-date-selected', function(event, obj) {
 
-    	/* This event will be triggered when first date is selected */
-      event.stopPropagation();
-      if (!$('#start-date-range').val()){
-        //closeStartDatePicker();
-        selectedDate = obj.date1;
-        dayInSelectedStartDate = selectedDate.getDate();
-        selectedStartDate = getFormattedDate(selectedDate);
-        selectedTime = getFormatedTime(selectedDate);
-        $('#start-date-range').val(selectedStartDate + " " + selectedTime);
+  function startStartDatePicker() {
+    $('#start-datetimepicker').dateRangePicker(
+    {
+      time: {
+  		    enabled: true
+  	  },
+      singleMonth: true,
+      singleDate:true,
+      startDate: false,
+  	  endDate: false,
+      format: 'DD.MM.YYYY HH:mm',
+      autoClose: false,
+      tableId:'start-date-table',
+    	// getValue: function()
+    	// {
+    	// 	if ($('#start-date-range').val() && $('#end-date-range').val() )
+    	// 		return $('#start-date-range').val() + ' to ' + $('#end-date-range').val();
+    	// 	else
+    	// 		return '';
+    	// },
+    	setValue: function(s,s1,s2)
+    	{
+    		$('#start-date-range').val(s1);
+    		//$('#end-date-range').val(s2);
+    	}
+    }).bind('datepicker-first-date-selected', function(event, obj) {
 
-        nextDateOfSelectedDate = new Date(selectedDate.setDate(selectedDate.getDate() + 5));
+      	/* This event will be triggered when first date is selected */
+        event.stopPropagation();
+        //if (!$('#start-date-range').val()){
+          selectedDate = obj.date1;
+          dayInSelectedStartDate = selectedDate.getDate();
+          selectedStartDate = getFormattedDate(selectedDate);
+          selectedTime = getFormatedTime(selectedDate);
+          $('#start-date-range').val(selectedStartDate + " " + selectedTime);
+        //}
 
-        //$('#end-datetimepicker').data('dateRangePicker').setDateRange(selectedDate, nextDateOfSelectedDate);
+        //second date already selected.User is trying to change the start date.
+        if ($('#end-date-range').val()) {
+          $('#end-date-range').val('');
+        }
 
-        //openStartDatePicker();
-      }
+    });
+  };
 
-      // if ($('#start-date-range').val() && $('#end-date-range').val()) {
-      //   closeStartDatePicker();
-      //   console.log(obj.date1)
-      //   //$('#start-date-range').val(getFormattedDate(obj.date1));
-      // }
 
-  });
+
 
 
   function getFormattedDate(todayTime) {
@@ -71,61 +67,79 @@ $(function()
     return   hours + ":" + minutes;
   };
 
-  function closeStartDatePicker() {
+  function closeStartDatePicker () {
     $('#start-datetimepicker').data('dateRangePicker').close();
   };
 
-  function openStartDatePicker() {
+  function openStartDatePicker () {
     $('#start-datetimepicker').data('dateRangePicker').open();
   };
 
+  function destroyStartDatePicker () {
+    $('#start-datetimepicker').data('dateRangePicker').destroy()
+  }
 
-  function closeEndDatePicker() {
+  function closeEndDatePicker () {
     $('#end-datetimepicker').data('dateRangePicker').close();
   };
 
-  function openEndDatePicker() {
+  function openEndDatePicker () {
     $('#end-datetimepicker').data('dateRangePicker').open();
+  };
+
+  function destroyEndDatePicker () {
+    $('#end-datetimepicker').data('dateRangePicker').destroy()
   };
 
 
 
 
+  function startEndDatePicker() {
+    $('#end-datetimepicker').dateRangePicker({
+      time: {
+  		    enabled: true
+  	  },
+      singleMonth: true,
+      //singleDate:true,
+      //startDate: selectedStartDate,
+  	  endDate: false,
+      format: 'DD.MM.YYYY HH:mm',
+      autoClose: false,
+      endDateField:true,
+      tableId:'end-date-table',
+    	// getValue: function()
+    	// {
+    	// 	if ($('#start-date-range').val() && $('#end-date-range').val() )
+    	// 		return $('#start-date-range').val() + ' to ' + $('#end-date-range').val();
+    	// 	else
+    	// 		return '';
+    	// },
+    	setValue: function(s,s1,s2)
+    	{
+    		$('#end-date-range').val(s2);
+    		//$('#end-date-range').val(s2);
+    	}
+    }).bind('datepicker-opened',function() {
+        if (dayInSelectedStartDate) {
+            var today = new Date(),
+                element = $('#end-date-table').find('td div').filter(function() {
+                  return $(this).text() == new String(dayInSelectedStartDate)
+                });
+            if(element && element[0]) {
+              element[0].click();
+            }
+          }
+    }).bind('datepicker-change', function (event,obj) {
+        event.stopPropagation();
+        destroyStartDatePicker();
+        selectedStartDate = null;
+        selectedDate = null;
+        dayInSelectedStartDate = null;
+        startStartDatePicker();
+    });
+  };
 
-  $('#end-datetimepicker').dateRangePicker(
-  {
-    time: {
-		    enabled: true
-	  },
-    singleMonth: true,
-  //  singleDate:true,
-    //startDate: selectedStartDate,
-	  endDate: false,
-    format: 'DD.MM.YYYY HH:mm',
-    autoClose: false,
-    endDateField:true,
-    tableId:'end-date-table',
-  	// getValue: function()
-  	// {
-  	// 	if ($('#start-date-range').val() && $('#end-date-range').val() )
-  	// 		return $('#start-date-range').val() + ' to ' + $('#end-date-range').val();
-  	// 	else
-  	// 		return '';
-  	// },
-  	setValue: function(s,s1,s2)
-  	{
-  		$('#end-date-range').val(s2);
-  		//$('#end-date-range').val(s2);
-  	}
-  })
-  .bind('datepicker-opened',function()
-    {
-          var today = new Date(),
-              element = $('#end-date-table').find('td div').filter(function() {
-                //console.log(dayInSelectedStartDate);
-                return $(this).text() == new String(dayInSelectedStartDate)
-              });
-          element[0].click();
-  });
+  startStartDatePicker();
+  startEndDatePicker();
 
 });
