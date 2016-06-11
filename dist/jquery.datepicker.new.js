@@ -24,7 +24,7 @@
 			'selected': 'Selected:',
 			'day':'Day',
 			'days': 'Days',
-			'apply': 'Ok',
+			'apply': 'OK',
 			'week-1' : 'mo',
 			'week-2' : 'tu',
 			'week-3' : 'we',
